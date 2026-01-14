@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { CreateCategoryDto, CustomError, PaginationDto } from "../../domain";
 import { CategoryService } from "../services/category.service";
+import { logger } from "../../config";
 
 export class CategoryController {
   // DI
@@ -11,6 +12,8 @@ export class CategoryController {
     if (error instanceof CustomError) {
       return res.status(error.statusCode).json({ error: error.message });
     }
+
+    logger.error(error);
     return res.status(500).json({ error: "Internal Server Error" });
   };
 
@@ -23,6 +26,7 @@ export class CategoryController {
     this.categoryService
       .createCategory(createCategoryDto!, req.body.user)
       .then((category) => {
+        logger.info({ category_id: category.id, user_id: req.body.user.id }, "Category created successfully");
         return res.status(201).json(category);
       })
       .catch((error) => {
@@ -38,10 +42,10 @@ export class CategoryController {
       return res.status(400).json({ error });
     }
 
-
     this.categoryService
       .getCategories(paginationDto!)
       .then((categories) => {
+        req.log.info("Obteniendo lista de categorias");
         return res.status(200).json(categories);
       })
       .catch((error) => {
