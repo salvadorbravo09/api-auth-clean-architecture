@@ -2,6 +2,7 @@ import { envs } from "./../../config/envs";
 import { Router } from "express";
 import { AuthController } from "./controller";
 import { AuthService, EmailService } from "../services";
+import { LimiterConfig } from "../../config/limiter";
 
 export class AuthRoutes {
   static get routes(): Router {
@@ -15,8 +16,8 @@ export class AuthRoutes {
     const authController = new AuthController(authService);
 
     // Definir las rutas
-    router.post("/login", authController.login);
-    router.post("/register", authController.register);
+    router.post("/login", LimiterConfig.authLimiter, authController.login);
+    router.post("/register", LimiterConfig.authLimiter, authController.register);
     router.get("/validate-email/:token", authController.validateEmail);
 
     return router;
