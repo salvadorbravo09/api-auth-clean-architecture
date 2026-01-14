@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { CustomError, LoginUserDto, RegisterUserDto } from "../../domain";
 import { AuthService } from "../services/auth.service";
+import { logger } from "../../config";
 
 export class AuthController {
   // DI
@@ -11,6 +12,8 @@ export class AuthController {
     if (error instanceof CustomError) {
       return res.status(error.statusCode).json({ error: error.message });
     }
+
+    logger.error(error);
     return res.status(500).json({ error: "Internal Server Error" });
   };
 
@@ -24,6 +27,7 @@ export class AuthController {
     this.authService
       .registerUser(registerUserDto!)
       .then((result) => {
+        logger.info({ user_email: result.user.email }, "User registered successfully");
         return res.status(201).json(result);
       })
       .catch((error) => {
@@ -41,6 +45,7 @@ export class AuthController {
     this.authService
       .loginUser(loginUserDto!)
       .then((result) => {
+        logger.info({ user_email: result.user.email }, "User logged in successfully");
         return res.status(200).json(result);
       })
       .catch((error) => this.handleError(error, res));
