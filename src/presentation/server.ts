@@ -1,7 +1,7 @@
 import express, { Router } from "express";
 import helmet from "helmet";
 import path from "path";
-import { requestLogger, logger } from "../config";
+import { requestLogger, logger, LimiterConfig } from "../config";
 
 interface Options {
   port: number;
@@ -25,15 +25,17 @@ export class Server {
 
   async start() {
     this.app.set("trust proxy", true);
-    
+
     //* Middlewares
     this.app.use(helmet()); // Seguridad de las cabeceras HTTP
     this.app.use(requestLogger); // Logger de peticiones HTTP
     this.app.use(express.json()); // raw
     this.app.use(express.urlencoded({ extended: true })); // x-www-form-urlencoded
-
     //* Public Folder
     this.app.use(express.static(this.publicPath));
+
+    //* Rate Limiter (General) - Aplicar después de static para no limitar assets
+    this.app.use(LimiterConfig.globalLimiter);
 
     //* Routes
     this.app.use(this.routes);
