@@ -1,4 +1,5 @@
 import nodemailer, { Transporter } from "nodemailer";
+import { logger } from "../../config";
 
 export interface SendMailOptions {
   to: string | string[];
@@ -40,11 +41,9 @@ export class EmailService {
         attachments: attachements,
       });
 
-      // console.log( sentInformation );
-
       return true;
     } catch (error) {
-      console.log(error)
+      logger.error(error);
       return false;
     }
   }
