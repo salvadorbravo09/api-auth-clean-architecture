@@ -1,5 +1,7 @@
 import express, { Router } from "express";
+import helmet from "helmet";
 import path from "path";
+import { requestLogger, logger } from "../config";
 
 interface Options {
   port: number;
@@ -22,7 +24,11 @@ export class Server {
   }
 
   async start() {
+    this.app.set("trust proxy", true);
+    
     //* Middlewares
+    this.app.use(helmet()); // Seguridad de las cabeceras HTTP
+    this.app.use(requestLogger); // Logger de peticiones HTTP
     this.app.use(express.json()); // raw
     this.app.use(express.urlencoded({ extended: true })); // x-www-form-urlencoded
 
@@ -41,7 +47,7 @@ export class Server {
     });
 
     this.serverListener = this.app.listen(this.port, () => {
-      console.log(`Server running on port ${this.port}`);
+      logger.info(`Server running on port ${this.port}`);
     });
   }
 
