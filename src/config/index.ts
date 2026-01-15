@@ -5,3 +5,4 @@ export * from "./jwt.adapter";
 export * from "./validators";
 export * from "./logger";
 export * from "./limiter";
+export * from "./cors";
